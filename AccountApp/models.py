@@ -25,6 +25,18 @@ class Speciality(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ["name"]
+        verbose_name = "Speciality"
+        verbose_name_plural = "Specialities"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["name"],
+                name="unique_speciality_name",
+                violation_error_message="Cette spécialité existe déjà."
+            )
+        ]
+
     def __str__(self):
         return self.name
 
@@ -36,6 +48,14 @@ class Doctor(User):
     updated_at = models.DateTimeField(auto_now=True)
     specialities = models.ManyToManyField(Speciality, related_name='doctors')
 
+    class Meta:
+        ordering = ["last_name", "first_name"]
+        verbose_name = "Doctor"
+        verbose_name_plural = "Doctors"
+
+    def __str__(self):
+        return f"Dr. {self.get_full_name() or self.username}"
+
 
 class Patient(User):
     national_id = models.CharField(max_length=8, unique=True, validators=[number_validator])
@@ -43,3 +63,11 @@ class Patient(User):
     birth_date = models.DateField(validators=[validate_birth_date])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["last_name", "first_name"]
+        verbose_name = "Patient"
+        verbose_name_plural = "Patients"
+
+    def __str__(self):
+        return self.get_full_name() or self.username
